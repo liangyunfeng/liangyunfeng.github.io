@@ -1,0 +1,1254 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Git," />
+
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="Evan-Lam's Blog" type="application/atom+xml" />
+
+
+
+
+
+
+<meta name="description" content="Git常用命令全局设置 a. 设置用户信息   $ git config --global user.name &amp;quot;Your Name&amp;quot;   $ git config --global user.email &amp;quot;email@example.com&amp;quot; b. 设置编辑器   $ git config --global core.editor emacs c. 设置差">
+<meta name="keywords" content="Git">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Git常用命令">
+<meta property="og:url" content="https://liangyunfeng.github.io/2017/05/08/Git常用命令/index.html">
+<meta property="og:site_name" content="Evan-Lam&#39;s Blog">
+<meta property="og:description" content="Git常用命令全局设置 a. 设置用户信息   $ git config --global user.name &amp;quot;Your Name&amp;quot;   $ git config --global user.email &amp;quot;email@example.com&amp;quot; b. 设置编辑器   $ git config --global core.editor emacs c. 设置差">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2018-05-23T14:36:31.834Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Git常用命令">
+<meta name="twitter:description" content="Git常用命令全局设置 a. 设置用户信息   $ git config --global user.name &amp;quot;Your Name&amp;quot;   $ git config --global user.email &amp;quot;email@example.com&amp;quot; b. 设置编辑器   $ git config --global core.editor emacs c. 设置差">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://liangyunfeng.github.io/2017/05/08/Git常用命令/"/>
+
+
+
+
+
+  <title>Git常用命令 | Evan-Lam's Blog</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Evan-Lam's Blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">持之以恒，契而不舍</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  
+  <div class="algolia-popup popup search-popup">
+    <div class="algolia-search">
+      <div class="algolia-search-input-icon">
+        <i class="fa fa-search"></i>
+      </div>
+      <div class="algolia-search-input" id="algolia-search-input"></div>
+    </div>
+
+    <div class="algolia-results">
+      <div id="algolia-stats"></div>
+      <div id="algolia-hits"></div>
+      <div id="algolia-pagination" class="algolia-pagination"></div>
+    </div>
+
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+  </div>
+
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://liangyunfeng.github.io/2017/05/08/Git常用命令/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Evan-Lam">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/touxiang.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Evan-Lam's Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">Git常用命令</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-05-08T22:56:19+08:00">
+                2017-05-08
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Git/" itemprop="url" rel="index">
+                    <span itemprop="name">Git</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+             <span id="/2017/05/08/Git常用命令/" class="leancloud_visitors" data-flag-title="Git常用命令">
+               <span class="post-meta-divider">|</span>
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               
+                 <span class="post-meta-item-text">阅读次数&#58;</span>
+               
+                 <span class="leancloud-visitors-count"></span>
+             </span>
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h1 id="Git常用命令"><a href="#Git常用命令" class="headerlink" title="Git常用命令"></a>Git常用命令</h1><p><strong>全局设置</strong></p>
+<p>a. 设置用户信息  </p>
+<pre><code>$ git config --global user.name &quot;Your Name&quot;  
+$ git config --global user.email &quot;email@example.com&quot;
+</code></pre><p>b. 设置编辑器  </p>
+<pre><code>$ git config --global core.editor emacs
+</code></pre><p>c. 设置差异比较器  </p>
+<pre><code>$ git config --global merge.tool vimdiff
+</code></pre><p>d. 设置显示不同的颜色</p>
+<pre><code>$ git config --global color.ui true
+</code></pre><p>e. 查看全局设置信息  </p>
+<pre><code>$ git config --global -l
+</code></pre><p><strong>SSH Key设置</strong></p>
+<p>a. 生成SSH key  </p>
+<pre><code>$ ssh-keygen -t rsa -C &quot;youremail@example.com&quot;
+</code></pre><p>b. 复制id_rsa.pub内容到粘贴板中  </p>
+<pre><code>$ cat ~/.ssh/id_rsa.pub
+</code></pre><p>c. 登陆Github &gt; 设置 &gt; SSH and GPG Keys &gt; new SSH key  </p>
+<p>d. 复制粘贴板中的内容到key文本编辑框中  </p>
+<p>e. 点击Add SHH key按钮  </p>
+<p>f. 查看是否设置SSH成功  </p>
+<pre><code>$ ssh [-p port] git@github.com
+</code></pre><p><strong>创建仓库</strong></p>
+<p>a. 进入需要创建仓库的目录  </p>
+<pre><code>$ mkdir studygit
+$ cd studygit
+$ pwd
+/Users/username/studygit
+</code></pre><p>b. 在当前目录创建仓库  </p>
+<pre><code>$ git init
+</code></pre><p><strong>添加远程库</strong></p>
+<p>a. 把一个已有的本地仓库与远程仓库关联   </p>
+<pre><code>$ git remote add origin git@github.com:liangyunfeng/git.study.git
+</code></pre><p>b. 本地库的所有内容推送到远程库上  </p>
+<blockquote>
+<p>由于远程库是空的，我们第一次推送master分支时，加上了-u参数，Git不但会把本地的master分支内容推送的远程新的master分支，还会把本地的master分支和远程的master分支关联起来，在以后的推送或者拉取时就可以简化命令。  </p>
+</blockquote>
+<pre><code>$ git push -u origin master
+</code></pre><p>c. 之后推送本地库到远程库上使用  </p>
+<pre><code>$ git push origin master
+</code></pre><p><strong>把文件添加到暂存区</strong>  </p>
+<pre><code>$ git add readme.txt
+</code></pre><p><strong>把文件添加到版本库</strong>  </p>
+<pre><code>$ git commit -m &quot;wrote a readme file&quot;
+</code></pre><p><strong>查看仓库的当前状态</strong>  </p>
+<pre><code>$ git status
+</code></pre><p><strong>查看修改内容</strong></p>
+<pre><code>$ git diff readme.txt 
+</code></pre><p><strong>查看提交历史</strong>  </p>
+<pre><code>$ git log
+</code></pre><p><strong>查看命令历史</strong></p>
+<pre><code>$ git reflog
+</code></pre><p><strong>版本回退</strong>  </p>
+<pre><code>$ git reset --hard commit_id 
+$ git reset --hard HEAD &lt;filename&gt;
+$ git reset --hard HEAD^^
+$ git reset --hard HEAD~2
+</code></pre><p><strong>撤销修改</strong>  </p>
+<pre><code>$ git checkout -- file
+</code></pre><blockquote>
+<p>命令git checkout – file意思就是，把file文件在工作区的修改全部撤销，这里有两种情况：<br>一种是file自修改后还没有被放到暂存区，现在，撤销修改就回到和版本库一模一样的状态；<br>一种是filet已经添加到暂存区后，又作了修改，现在，撤销修改就回到添加到暂存区后的状态。</p>
+</blockquote>
+<p><strong>把暂存区的修改撤销掉（unstage），重新放回工作区</strong></p>
+<pre><code>$ git reset HEAD &lt;file&gt;
+</code></pre><blockquote>
+<p>场景1：当你改乱了工作区某个文件的内容，想直接丢弃工作区的修改时，用命令git checkout – file。<br>场景2：当你不但改乱了工作区某个文件的内容，还添加到了暂存区时，想丢弃修改，分两步，第一步用命令git reset HEAD <file>，就回到了场景1，第二步按场景1操作。<br>场景3：已经提交了不合适的修改到版本库时，想要撤销本次提交，参考版本回退git reset –hard commit_id，不过前提是没有推送到远程库。</file></p>
+</blockquote>
+<p><strong>删除文件</strong></p>
+<pre><code>$ git rm test.txt
+$ git commit -m &quot;description&quot;
+</code></pre><p><strong>工作区误删文件，恢复到版本库最新版本</strong></p>
+<pre><code>$ git checkout -- file
+</code></pre><p><strong>关联远程库</strong></p>
+<pre><code>$ git remote add origin git@server-name:path/repo-name.git
+</code></pre><p><strong>关联后，第一次推送master分支的所有内容</strong></p>
+<pre><code>$ git push -u origin master
+</code></pre><p><strong>此后，提交到远程库</strong></p>
+<pre><code>$ git push origin master
+</code></pre><p><strong>从远程库克隆</strong></p>
+<pre><code>$ git clone git@server-name:path/repo-name.git
+</code></pre><p><strong>创建分支</strong></p>
+<pre><code>$ git branch &lt;name&gt;
+</code></pre><p><strong>切换分支</strong></p>
+<pre><code>$ git checkout &lt;name&gt;
+</code></pre><p><strong>查看分支</strong></p>
+<pre><code>$ git branch
+</code></pre><p><strong>创建+切换分支</strong></p>
+<pre><code>$ git checkout -b &lt;name&gt;
+</code></pre><p><strong>合并某分支到当前分支</strong></p>
+<pre><code>$ git merge &lt;name&gt;
+</code></pre><p><strong>删除分支</strong></p>
+<pre><code>$ git branch -d &lt;name&gt;
+</code></pre><p><strong>解决冲突</strong></p>
+<blockquote>
+<p>当Git无法自动合并分支时，就必须首先解决冲突。解决冲突后，再提交，合并完成。<br>  解决冲突就是把Git合并失败的文件手动编辑为我们希望的内容，再提交。</p>
+</blockquote>
+<p><strong>查看分支合并图</strong></p>
+<pre><code>$ git log --graph
+</code></pre><p><strong>普通模式合并某分支到当前分支</strong></p>
+<pre><code>$ git merge --no-ff -m &quot;merge with no-ff&quot; &lt;name&gt;
+</code></pre><blockquote>
+<p>合并分支时，加上–no-ff参数就可以用普通模式合并，合并后的历史有分支，能看出来曾经做过合并，而fast forward合并就看不出来曾经做过合并。</p>
+</blockquote>
+<p><strong>工作现场隐藏</strong></p>
+<pre><code>$ git stash
+</code></pre><p><strong>查看工作现场</strong></p>
+<pre><code>$ git stash list
+</code></pre><p><strong>工作现场恢复但不删除工作现场</strong></p>
+<pre><code>$ git stash apply [stash@{0}]
+</code></pre><p><strong>工作现场恢复并删除工作现场</strong></p>
+<pre><code>$ git stash pop
+</code></pre><p><strong>查看远程库信息</strong></p>
+<pre><code>$ git remote
+</code></pre><p><strong>查看远程库详细信息</strong></p>
+<pre><code>$ git remote -v
+</code></pre><p><strong>从本地推送分支</strong></p>
+<pre><code>$ git push origin branch-name
+</code></pre><blockquote>
+<p>从本地推送分支，使用git push origin branch-name，如果推送失败，先用git pull抓取远程的新提交；</p>
+</blockquote>
+<p><strong>在本地创建和远程分支对应的分支</strong></p>
+<pre><code>$ git checkout -b branch-name origin/branch-name
+</code></pre><p><strong>建立本地分支和远程分支的关联</strong></p>
+<pre><code>$ git branch --set-upstream branch-name origin/branch-name
+</code></pre><p><strong>从远程抓取分支</strong></p>
+<pre><code>$ git pull
+</code></pre><blockquote>
+<p>从远程抓取分支，使用git pull，如果有冲突，要先处理冲突。</p>
+</blockquote>
+<p><strong>关联远程库</strong></p>
+<pre><code>$ git remote add &lt;name&gt; git@github.com:liangyunfeng/git.study.git
+</code></pre><p><strong>远程库重命名</strong></p>
+<pre><code>$ git remote rename &lt;oldname&gt; &lt;newname&gt;
+</code></pre><p><strong>删除远程库</strong></p>
+<pre><code>$ git remote rm &lt;name&gt;
+</code></pre><p><strong>重新设置基线</strong></p>
+<pre><code>$ git rebase
+</code></pre><blockquote>
+<p>原理很简单：rebase需要基于一个分支来设置你当前的分支的基线，这基线就是当前分支的开始时间轴向后移动到最新的跟踪分支的最后面，这样你的当前分支就    是最新的跟踪分支。这里的操作是基于文件事务处理的，所以你不用怕中间失败会影响文件的一致性。在中间的过程中你可以随时取消rebase 事务。git rebase –abort</p>
+<p>git rebase其实可以把它理解成是“重新设置基线”，将你的当前分支重新设置开始点。这个时候才能知道你当前分支于你需要比较的分支之间的差异。</p>
+</blockquote>
+<p><strong>创建标签</strong></p>
+<pre><code>$ git tag &lt;tagname&gt; [commitid]
+</code></pre><blockquote>
+<p>可以指定commitid，默认为HEAD</p>
+</blockquote>
+<pre><code>git tag -a &lt;tagname&gt; -m &quot;decription&quot; [commitid]
+</code></pre><blockquote>
+<p>创建带有说明的标签，用-a指定标签名，-m指定说明文字</p>
+</blockquote>
+<p><strong>查看标签</strong></p>
+<pre><code>$ git tag
+</code></pre><p><strong>看标签信息</strong></p>
+<pre><code>$ git show &lt;tagname&gt;
+</code></pre><p><strong> 删除标签</strong></p>
+<pre><code>$ git tag -d &lt;tagname&gt;
+</code></pre><p><strong>推送一个本地标签</strong></p>
+<pre><code>$ git push origin &lt;tagname&gt;
+</code></pre><p><strong>推送全部未推送过的本地标签</strong></p>
+<pre><code>$ git push origin --tags
+</code></pre><p><strong>删除一个远程标签</strong></p>
+<pre><code>$ git push origin :refs/tags/&lt;tagname&gt;
+</code></pre><p><strong>忽略文件</strong></p>
+<blockquote>
+<p>忽略某些文件时，需要编写.gitignore；</p>
+<p>gitignore文件本身要放到版本库里，并且可以对.gitignore做版本管理！</p>
+<p>如果你确实想添加该文件，可以用-f强制添加到Git：<br>$ git add -f App.class<br>$ git check-ignore -v App.class</p>
+</blockquote>
+<p><strong>配置别名</strong></p>
+<pre><code>$ $ git config --global alias.&lt;name&gt; &apos;option...&apos;
+</code></pre><blockquote>
+<p>$ git config –global alias.unstage ‘reset HEAD’<br>当你敲入命令：<br>$ git unstage file<br>实际上Git执行的是：<br>$ git reset HEAD file</p>
+</blockquote>
+<p><strong>搭建Git服务器</strong></p>
+<p>a. 安装git</p>
+<pre><code>$ sudo apt-get install git
+</code></pre><p>b. 创建一个git用户，用来运行git服务：</p>
+<pre><code>$ sudo adduser git
+</code></pre><p>c. 创建证书登录：</p>
+<blockquote>
+<p>收集所有需要登录的用户的公钥，就是他们自己的id_rsa.pub文件，把所有公钥导入到/home/git/.ssh/authorized_keys文件里，一行一个。</p>
+</blockquote>
+<p>d. 初始化Git仓库：</p>
+<blockquote>
+<p>先选定一个目录作为Git仓库，假定是/srv/sample.git，在/srv目录下输入命令：</p>
+</blockquote>
+<pre><code>$ sudo git init --bare sample.git
+</code></pre><blockquote>
+<p>Git就会创建一个裸仓库，裸仓库没有工作区，因为服务器上的Git仓库纯粹是为了共享，所以不让用户直接登录到服务器上去改工作区，并且服务器上的Git仓库通常都以.git结尾。然后，把owner改为git：</p>
+</blockquote>
+<pre><code>$ sudo chown -R git:git sample.git
+</code></pre><p>e. 禁用shell登录：</p>
+<blockquote>
+<p>出于安全考虑，第二步创建的git用户不允许登录shell，这可以通过编辑/etc/passwd文件完成。找到类似下面的一行：</p>
+</blockquote>
+<pre><code>git:x:1001:1001:,,,:/home/git:/bin/bash
+</code></pre><blockquote>
+<p>改为：</p>
+</blockquote>
+<pre><code>git:x:1001:1001:,,,:/home/git:/usr/bin/git-shell
+</code></pre><blockquote>
+<p>这样，git用户可以正常通过ssh使用git，但无法登录shell，因为我们为git用户指定的git-shell每次一登录就自动退出。</p>
+</blockquote>
+<p>f. 克隆远程仓库：</p>
+<blockquote>
+<p>现在，可以通过git clone命令克隆远程仓库了，在各自的电脑上运行：</p>
+</blockquote>
+<pre><code>$ git clone git@server:/srv/sample.git
+</code></pre><p><strong>git push</strong></p>
+<pre><code>$ git push origin master
+</code></pre><blockquote>
+<p>origin指定了你要push到哪个remote<br>  master其实是一个“refspec”，正常的“refspec”的形式为”+<src>:<dst>”，冒号前表示local branch的名字，冒号后表示remote repository下 branch的名字。注意，如果你省略了<dst>，git就认为你想push到remote repository下和local branch相同名字的branch。听起来有点拗口，再解释下，push是怎么个push法，就是把本地branch指向的commit push到remote repository下的branch，比如:</dst></dst></src></p>
+</blockquote>
+<pre><code>$ git push origin master:master                (在local repository中找到名字为master的branch，使用它去更新remote repository下名字为master的branch，如果remote repository下不存在名字是master的branch，那么新建一个)
+$ git push origin master                    (省略了&lt;dst&gt;，等价于“git push origin)master:master”）
+$ git push origin master:refs/for/mybranch    (在local repository中找到名字为master的branch，用他去更新remote repository下面名字为mybranch的branch)
+$ git push origin HEAD:refs/for/mybranch    (HEAD指向当前工作的branch，master不一定指向当前工作的branch，所以我觉得用HEAD还比master好些)
+$ git push origin :mybranch                    (再origin repository里面查找mybranch，删除它。用一个空的去更新它，就相当于删除了)
+</code></pre><p><strong>git fetch 和 git pull 的区别</strong></p>
+<p><strong>git fetch：</strong>相当于是从远程获取最新版本到本地，不会自动merge</p>
+<pre><code>$ git fetch origin master
+$ git log -p master ../origin/master
+$ git merge origin/master
+</code></pre><blockquote>
+<p>以上命令的含义：<br>  首先从远程的origin的master主分支下载最新的版本到origin/master分支上<br>  然后比较本地的master分支和origin/master分支的差别<br>  最后进行合并  </p>
+</blockquote>
+<p><strong>git pull：</strong>相当于是从远程获取最新版本并merge到本地</p>
+<pre><code>$ git pull origin master
+</code></pre><blockquote>
+<p>上述命令其实相当于git fetch 和 git merge<br>  在实际使用中，git fetch更安全一些<br>  因为在merge前，我们可以查看更新情况，然后再决定是否合并</p>
+</blockquote>
+<p><strong>git log</strong></p>
+<pre><code>git log [&lt;options&gt;] [&lt;since&gt;..&lt;until&gt;] [[--] &lt;path&gt;...]
+</code></pre><blockquote>
+<p>这条命令有很多参数选项</p>
+</blockquote>
+<pre><code>一、不带参数
+    1.如果不带任何参数，它会列出所有历史记录，最近的排在最上方，显示提交对象的哈希值，作者、提交日期、和提交说明
+    2.如果记录过多，则按Page Up、Page Down、↓、↑来控制显示
+    3.按q退出历史记录列表
+
+二、显示参数
+    1.-p：按补丁显示每个更新间的差异，比下一条- -stat命令信息更全
+    2.--stat：显示每次更新的修改文件的统计信息，每个提交都列出了修改过的文件，以及其中添加和移除的行数，并在最后列出所有增减行数小计
+    3.--shortstat：只显示--stat中最后的行数添加修改删除统计
+    4.--name-only：尽在已修改的提交信息后显示文件清单
+    5.--name-status：显示新增、修改和删除的文件清单
+    6.--abbrev-commit：仅显示SHA-1的前几个字符，而非所有的40个字符
+    7.--relative-date：使用较短的相对时间显示（例如：&quot;two weeks ago&quot;）
+    8.--graph：显示ASCII图形表示的分支合并历史
+    9.—pretty＝：使用其他格式显示历史提交信息，可选项有：oneline,short,medium,full,fuller,email,raw以及format:&lt;string&gt;,默认为medium，如：
+        1.--pretty=oneline：一行显示，只显示哈希值和提交说明（--online本身也可以作为单独的属性）
+        2.--pretty=format:” &quot;：控制显示的记录格式，如：
+    10.--date= (relative|local|default|iso|rfc|short|raw)：定制后边如果出现%ad或%cd时的日期格式
+
+三、筛选参数：
+    1.按数量
+    2.按日期
+    3.按作者
+    4.按commit描述
+    5.按文件
+    6.按分支
+    7.按内容
+    8.按范围
+    9.过滤掉merge commit
+    10.按标签tag  
+    11.按commit
+</code></pre><p><strong>git help</strong></p>
+<pre><code>$ git help
+$ git clone -help
+$ git init -help
+$ git add -help
+$ git tag -help
+$ git pull -help
+$ git push -help
+$ git status -help
+$ git commit -help
+$ git checkout -help
+$ git merge -help
+$ git stash -help
+</code></pre>
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Git/" rel="tag"># Git</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2017/03/19/Notification框架简介/" rel="next" title="Notification框架简介">
+                <i class="fa fa-chevron-left"></i> Notification框架简介
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2018/01/07/多分辨率适配总结/" rel="prev" title="多分辨率适配总结">
+                多分辨率适配总结 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image"
+                src="/images/touxiang.jpg"
+                alt="Evan-Lam" />
+            
+              <p class="site-author-name" itemprop="name">Evan-Lam</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">6</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">4</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">3</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+            <div class="feed-link motion-element">
+              <a href="/atom.xml" rel="alternate">
+                <i class="fa fa-rss"></i>
+                RSS
+              </a>
+            </div>
+          
+
+          
+            <div class="links-of-author motion-element">
+                
+                  <span class="links-of-author-item">
+                    <a href="https://github.com/liangyunfeng" target="_blank" title="GitHub">
+                      
+                        <i class="fa fa-fw fa-github"></i>GitHub</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="https://weibo.com/2717692811/profile?topnav=1&wvr=6" target="_blank" title="微博">
+                      
+                        <i class="fa fa-fw fa-weibo"></i>微博</a>
+                  </span>
+                
+            </div>
+          
+
+          
+          
+
+          
+          
+            <div class="links-of-blogroll motion-element links-of-blogroll-block">
+              <div class="links-of-blogroll-title">
+                <i class="fa  fa-fw fa-link"></i>
+                Links
+              </div>
+              <ul class="links-of-blogroll-list">
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="https://blog.csdn.net/a38876399" title="CSDN" target="_blank">CSDN</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="https://www.jianshu.com/u/9f223d7d7208" title="简书" target="_blank">简书</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="https://blog.csdn.net/Luoshengyang/" title="老罗的Android之旅" target="_blank">老罗的Android之旅</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="http://chuangzaoshi.com/" title="创建狮" target="_blank">创建狮</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="https://github.com/google" title="Google" target="_blank">Google</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="http://androidxref.com/" title="AndroidXRef" target="_blank">AndroidXRef</a>
+                  </li>
+                
+              </ul>
+            </div>
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Git常用命令"><span class="nav-number">1.</span> <span class="nav-text">Git常用命令</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Evan-Lam</span>
+
+</div>
+
+
+
+
+
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/canvas-nest/canvas-nest.min.js"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.4"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+  
+  
+  
+  <link rel="stylesheet" href="/lib/algolia-instant-search/instantsearch.min.css">
+
+  
+  
+  <script src="/lib/algolia-instant-search/instantsearch.min.js"></script>
+  
+
+  <script src="/js/src/algolia-search.js?v=5.1.4"></script>
+
+
+
+  
+
+  
+  <script src="https://cdn1.lncld.net/static/js/av-core-mini-0.6.4.js"></script>
+  <script>AV.initialize("JtQ9B4eFwaAAGlGhqHhNeIL3-gzGzoHsz", "IGEWd52BgUrX4IauS8tjzNTL");</script>
+  <script>
+    function showTime(Counter) {
+      var query = new AV.Query(Counter);
+      var entries = [];
+      var $visitors = $(".leancloud_visitors");
+
+      $visitors.each(function () {
+        entries.push( $(this).attr("id").trim() );
+      });
+
+      query.containedIn('url', entries);
+      query.find()
+        .done(function (results) {
+          var COUNT_CONTAINER_REF = '.leancloud-visitors-count';
+
+          if (results.length === 0) {
+            $visitors.find(COUNT_CONTAINER_REF).text(0);
+            return;
+          }
+
+          for (var i = 0; i < results.length; i++) {
+            var item = results[i];
+            var url = item.get('url');
+            var time = item.get('time');
+            var element = document.getElementById(url);
+
+            $(element).find(COUNT_CONTAINER_REF).text(time);
+          }
+          for(var i = 0; i < entries.length; i++) {
+            var url = entries[i];
+            var element = document.getElementById(url);
+            var countSpan = $(element).find(COUNT_CONTAINER_REF);
+            if( countSpan.text() == '') {
+              countSpan.text(0);
+            }
+          }
+        })
+        .fail(function (object, error) {
+          console.log("Error: " + error.code + " " + error.message);
+        });
+    }
+
+    function addCount(Counter) {
+      var $visitors = $(".leancloud_visitors");
+      var url = $visitors.attr('id').trim();
+      var title = $visitors.attr('data-flag-title').trim();
+      var query = new AV.Query(Counter);
+
+      query.equalTo("url", url);
+      query.find({
+        success: function(results) {
+          if (results.length > 0) {
+            var counter = results[0];
+            counter.fetchWhenSave(true);
+            counter.increment("time");
+            counter.save(null, {
+              success: function(counter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(counter.get('time'));
+              },
+              error: function(counter, error) {
+                console.log('Failed to save Visitor num, with error message: ' + error.message);
+              }
+            });
+          } else {
+            var newcounter = new Counter();
+            /* Set ACL */
+            var acl = new AV.ACL();
+            acl.setPublicReadAccess(true);
+            acl.setPublicWriteAccess(true);
+            newcounter.setACL(acl);
+            /* End Set ACL */
+            newcounter.set("title", title);
+            newcounter.set("url", url);
+            newcounter.set("time", 1);
+            newcounter.save(null, {
+              success: function(newcounter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(newcounter.get('time'));
+              },
+              error: function(newcounter, error) {
+                console.log('Failed to create');
+              }
+            });
+          }
+        },
+        error: function(error) {
+          console.log('Error:' + error.code + " " + error.message);
+        }
+      });
+    }
+
+    $(function() {
+      var Counter = AV.Object.extend("Counter");
+      if ($('.leancloud_visitors').length == 1) {
+        addCount(Counter);
+      } else if ($('.post-title-link').length > 1) {
+        showTime(Counter);
+      }
+    });
+  </script>
+
+
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

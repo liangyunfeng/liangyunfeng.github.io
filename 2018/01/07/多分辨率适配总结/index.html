@@ -1,0 +1,988 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Android," />
+
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="Evan-Lam's Blog" type="application/atom+xml" />
+
+
+
+
+
+
+<meta name="description" content="sw360dp :sw表示smallest screen width, 设备使用比设备本身小最接近的文件夹。比如一个设备最小的屏幕宽度是380dp,现在有sw360dp文件夹和sw411dp文件夹，那么会使用哪个文件夹的资源？会使用sw360dp的，因为sw411dp要求最小屏幕宽度是411dp，你的设备最小屏幕宽度是360dp，那么大于360dp并且小于411dp这部分的布局就不够空间显示。 x">
+<meta name="keywords" content="Android">
+<meta property="og:type" content="article">
+<meta property="og:title" content="多分辨率适配总结">
+<meta property="og:url" content="https://liangyunfeng.github.io/2018/01/07/多分辨率适配总结/index.html">
+<meta property="og:site_name" content="Evan-Lam&#39;s Blog">
+<meta property="og:description" content="sw360dp :sw表示smallest screen width, 设备使用比设备本身小最接近的文件夹。比如一个设备最小的屏幕宽度是380dp,现在有sw360dp文件夹和sw411dp文件夹，那么会使用哪个文件夹的资源？会使用sw360dp的，因为sw411dp要求最小屏幕宽度是411dp，你的设备最小屏幕宽度是360dp，那么大于360dp并且小于411dp这部分的布局就不够空间显示。 x">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="https://liangyunfeng.github.io/2018/01/07/多分辨率适配总结/dpi_times.jpg">
+<meta property="og:image" content="https://liangyunfeng.github.io/2018/01/07/多分辨率适配总结/dpi_cal.png">
+<meta property="og:updated_time" content="2018-05-23T10:35:36.755Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="多分辨率适配总结">
+<meta name="twitter:description" content="sw360dp :sw表示smallest screen width, 设备使用比设备本身小最接近的文件夹。比如一个设备最小的屏幕宽度是380dp,现在有sw360dp文件夹和sw411dp文件夹，那么会使用哪个文件夹的资源？会使用sw360dp的，因为sw411dp要求最小屏幕宽度是411dp，你的设备最小屏幕宽度是360dp，那么大于360dp并且小于411dp这部分的布局就不够空间显示。 x">
+<meta name="twitter:image" content="https://liangyunfeng.github.io/2018/01/07/多分辨率适配总结/dpi_times.jpg">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://liangyunfeng.github.io/2018/01/07/多分辨率适配总结/"/>
+
+
+
+
+
+  <title>多分辨率适配总结 | Evan-Lam's Blog</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Evan-Lam's Blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">持之以恒，契而不舍</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  
+  <div class="algolia-popup popup search-popup">
+    <div class="algolia-search">
+      <div class="algolia-search-input-icon">
+        <i class="fa fa-search"></i>
+      </div>
+      <div class="algolia-search-input" id="algolia-search-input"></div>
+    </div>
+
+    <div class="algolia-results">
+      <div id="algolia-stats"></div>
+      <div id="algolia-hits"></div>
+      <div id="algolia-pagination" class="algolia-pagination"></div>
+    </div>
+
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+  </div>
+
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://liangyunfeng.github.io/2018/01/07/多分辨率适配总结/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Evan-Lam">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/touxiang.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Evan-Lam's Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">多分辨率适配总结</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-01-07T14:41:21+08:00">
+                2018-01-07
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Android/" itemprop="url" rel="index">
+                    <span itemprop="name">Android</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+             <span id="/2018/01/07/多分辨率适配总结/" class="leancloud_visitors" data-flag-title="多分辨率适配总结">
+               <span class="post-meta-divider">|</span>
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               
+                 <span class="post-meta-item-text">阅读次数&#58;</span>
+               
+                 <span class="leancloud-visitors-count"></span>
+             </span>
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p><strong>sw360dp :</strong><br>sw表示smallest screen width, 设备使用比设备本身小最接近的文件夹。比如一个设备最小的屏幕宽度是380dp,现在有sw360dp文件夹和sw411dp文件夹，那么会使用哪个文件夹的资源？会使用sw360dp的，因为sw411dp要求最小屏幕宽度是411dp，你的设备最小屏幕宽度是360dp，那么大于360dp并且小于411dp这部分的布局就不够空间显示。</p>
+<p><strong>xhdpi:</strong><br>如果设备是xhdpi，现在有hdpi文件夹和xxhdpi的资源，它会使用哪个文件夹的资源呢？会使用xxhdpi的，因为使用更好分辨率的资源，可以把它按比例压缩到小分辨率的资源而不会失真，如果使用hdpi的资源，需要把它进行按比例拉伸到合适的大小才能使用。</p>
+<p>最清晰的Android多屏幕适配方案<br><a href="http://blog.csdn.net/shimiso/article/details/52061376#t0" target="_blank" rel="noopener">http://blog.csdn.net/shimiso/article/details/52061376#t0</a></p>
+<ol>
+<li><p>使用dp单位</p>
+</li>
+<li><p>在需要适配的地方使用引用，在不同的最小屏幕和像素密度的文件夹里面创建一份对应的尺寸。例如: mdpi, hdpi, xhdpi, xxhdpi, xxxhdpi, sw320dp-hdpi, sw320dp-xxhdpi, sw360dp-hdpi, sw411dp-xxhdpi, w360dp, h360dp, values-480x320, values-854x480, values-1920x1080, values-v11, values-v14, values-24等等。</p>
+</li>
+<li><p>selector, layer-list, shape, vector, animated-vector, path标签等xml文件放在drawable文件夹。可以使用这些创建的图形，最好不用图片资源。<br>selector:  <a href="http://blog.csdn.net/jiankeufo/article/details/73845750?from=singlemessage" target="_blank" rel="noopener">http://blog.csdn.net/jiankeufo/article/details/73845750?from=singlemessage</a><br>shape:  <a href="https://www.cnblogs.com/popfisher/p/6238119.html" target="_blank" rel="noopener">https://www.cnblogs.com/popfisher/p/6238119.html</a></p>
+</li>
+<li><p>图片资源创建一套放在drawable-xxhdpi，Android系统会根据设备的分辨率来自动缩放适配，不用为不同分辨率的设备创建多套图片资源，以达到减少apk大小。</p>
+</li>
+<li><p>使用.9文件(nine-patch)图片，可以满足特殊拉伸图片的情况。这样就不用为每种分辨率创建一套图片资源。</p>
+</li>
+<li><p>在代码中动态需要使用像素px单位的地方，可以通过设备密度来计算 px = (int)(density * dp) + 0.5 来计算出来。tip:这里加0.5是为了四舍五入的作用。</p>
+</li>
+<li><p>对于字体大小使用sp, dp的区别:   </p>
+<ul>
+<li>当修改系统字体大小时，字体大小以dp为单位时，大小不变；</li>
+<li><p>当修改系统字体大小时，字体大小以sp为单位时，大小跟随变化；<br>dp:<br>dp是一种密度无关像素，对应于 160dpi 下像素的物理尺寸<br>sp:<br>sp是和dp相同的基本单位，但它会按用户首选的文本尺寸进行缩放（属于缩放无关像素） </p>
+<p>从源代码注释可以看到：<br>scaledDensity会收到用户配置的影响，而density不会.<br>这也就是为什么设置sp单位时字体大小会受到用户配置系统字体的影响.</p>
+</li>
+</ul>
+</li>
+<li><p>Android中dp,px,sp概念梳理以及如何做到屏幕适配<br><a href="http://blog.csdn.net/jiangwei0910410003/article/details/40509571" target="_blank" rel="noopener">http://blog.csdn.net/jiangwei0910410003/article/details/40509571</a><br><a href="https://www.jianshu.com/p/23324a57352d" target="_blank" rel="noopener">https://www.jianshu.com/p/23324a57352d</a></p>
+</li>
+<li><p>| 密度类型 | 代表的分辨率（px） | 屏幕像素密度（dpi）|<br>| - | :-: | -: |<br>| 低密度（ldpi） | 240x320 | 120 |<br>| 中密度（mdpi） | 320x480 | 160 |<br>| 高密度（hdpi） | 480x800 | 240|<br>| 超高密度（xhdpi） | 720x1280 | 320|<br>| 超超高密度（xxhdpi） | 1080x1920 | 480 |  </p>
+ <img src="/2018/01/07/多分辨率适配总结/dpi_times.jpg" title="Image">
+<p> 屏幕尺寸、分辨率、像素密度三者关系 </p>
+<p> 一部手机的分辨率是宽x高，屏幕大小是以寸为单位，那么三者的关系是： </p>
+ <img src="/2018/01/07/多分辨率适配总结/dpi_cal.png" title="Image">
+<p> Android 屏幕适配：最全面的解决方案:<br> <a href="https://www.jianshu.com/p/ec5a1a30694b" target="_blank" rel="noopener">https://www.jianshu.com/p/ec5a1a30694b</a>  </p>
+</li>
+<li><p>使得布局元素自适应屏幕尺寸<br>使用相对布局（RelativeLayout），禁用绝对布局（AbsoluteLayout）<br>开发中，我们使用的布局一般有：<br>线性布局（Linearlayout）<br>相对布局（RelativeLayout）<br>帧布局（FrameLayout）<br>绝对布局（AbsoluteLayout）<br>用”wrap_content”、”match_parent”和”weight“来控制视图组件的宽度和高度  </p>
+</li>
+<li><p>常用图标规范尺寸:<br>L DPI ( Low Density Screen，120 DPI )，其图标大小为 36 x 36 px<br>M DPI ( Medium Density Screen, 160 DPI )，其图标大小为 48 x 48 px<br>H DPI ( High Density Screen, 240 DPI )，其图标大小为 72 x 72 px<br>XH DPI ( Extra-high density screen, 320 DPI )，其图标大小为 96 x 96 px<br>XXH DPI( xx-high density screen, 480 DPI )，其图标大小为144 x 144 px<br>XXXH DPI( xxx-high density screen, 640 DPI )，其图标大小为192 x 192 px<br><a href="http://blog.csdn.net/ys743276112/article/details/51910874" target="_blank" rel="noopener">http://blog.csdn.net/ys743276112/article/details/51910874</a> </p>
+</li>
+<li><p>注意小数点强制转换后的精确度降低导致的显示问题。例如: 前面几个布局的高度都四舍五入相加后，总高度的和可能会少了两三个像素px单位。</p>
+</li>
+</ol>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Android/" rel="tag"># Android</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2017/05/08/Git常用命令/" rel="next" title="Git常用命令">
+                <i class="fa fa-chevron-left"></i> Git常用命令
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+
+      <section class="site-overview-wrap sidebar-panel sidebar-panel-active">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image"
+                src="/images/touxiang.jpg"
+                alt="Evan-Lam" />
+            
+              <p class="site-author-name" itemprop="name">Evan-Lam</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">6</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">4</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">3</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+            <div class="feed-link motion-element">
+              <a href="/atom.xml" rel="alternate">
+                <i class="fa fa-rss"></i>
+                RSS
+              </a>
+            </div>
+          
+
+          
+            <div class="links-of-author motion-element">
+                
+                  <span class="links-of-author-item">
+                    <a href="https://github.com/liangyunfeng" target="_blank" title="GitHub">
+                      
+                        <i class="fa fa-fw fa-github"></i>GitHub</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="https://weibo.com/2717692811/profile?topnav=1&wvr=6" target="_blank" title="微博">
+                      
+                        <i class="fa fa-fw fa-weibo"></i>微博</a>
+                  </span>
+                
+            </div>
+          
+
+          
+          
+
+          
+          
+            <div class="links-of-blogroll motion-element links-of-blogroll-block">
+              <div class="links-of-blogroll-title">
+                <i class="fa  fa-fw fa-link"></i>
+                Links
+              </div>
+              <ul class="links-of-blogroll-list">
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="https://blog.csdn.net/a38876399" title="CSDN" target="_blank">CSDN</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="https://www.jianshu.com/u/9f223d7d7208" title="简书" target="_blank">简书</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="https://blog.csdn.net/Luoshengyang/" title="老罗的Android之旅" target="_blank">老罗的Android之旅</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="http://chuangzaoshi.com/" title="创建狮" target="_blank">创建狮</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="https://github.com/google" title="Google" target="_blank">Google</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="http://androidxref.com/" title="AndroidXRef" target="_blank">AndroidXRef</a>
+                  </li>
+                
+              </ul>
+            </div>
+          
+
+          
+
+        </div>
+      </section>
+
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Evan-Lam</span>
+
+</div>
+
+
+
+
+
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/canvas-nest/canvas-nest.min.js"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.4"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+  
+  
+  
+  <link rel="stylesheet" href="/lib/algolia-instant-search/instantsearch.min.css">
+
+  
+  
+  <script src="/lib/algolia-instant-search/instantsearch.min.js"></script>
+  
+
+  <script src="/js/src/algolia-search.js?v=5.1.4"></script>
+
+
+
+  
+
+  
+  <script src="https://cdn1.lncld.net/static/js/av-core-mini-0.6.4.js"></script>
+  <script>AV.initialize("JtQ9B4eFwaAAGlGhqHhNeIL3-gzGzoHsz", "IGEWd52BgUrX4IauS8tjzNTL");</script>
+  <script>
+    function showTime(Counter) {
+      var query = new AV.Query(Counter);
+      var entries = [];
+      var $visitors = $(".leancloud_visitors");
+
+      $visitors.each(function () {
+        entries.push( $(this).attr("id").trim() );
+      });
+
+      query.containedIn('url', entries);
+      query.find()
+        .done(function (results) {
+          var COUNT_CONTAINER_REF = '.leancloud-visitors-count';
+
+          if (results.length === 0) {
+            $visitors.find(COUNT_CONTAINER_REF).text(0);
+            return;
+          }
+
+          for (var i = 0; i < results.length; i++) {
+            var item = results[i];
+            var url = item.get('url');
+            var time = item.get('time');
+            var element = document.getElementById(url);
+
+            $(element).find(COUNT_CONTAINER_REF).text(time);
+          }
+          for(var i = 0; i < entries.length; i++) {
+            var url = entries[i];
+            var element = document.getElementById(url);
+            var countSpan = $(element).find(COUNT_CONTAINER_REF);
+            if( countSpan.text() == '') {
+              countSpan.text(0);
+            }
+          }
+        })
+        .fail(function (object, error) {
+          console.log("Error: " + error.code + " " + error.message);
+        });
+    }
+
+    function addCount(Counter) {
+      var $visitors = $(".leancloud_visitors");
+      var url = $visitors.attr('id').trim();
+      var title = $visitors.attr('data-flag-title').trim();
+      var query = new AV.Query(Counter);
+
+      query.equalTo("url", url);
+      query.find({
+        success: function(results) {
+          if (results.length > 0) {
+            var counter = results[0];
+            counter.fetchWhenSave(true);
+            counter.increment("time");
+            counter.save(null, {
+              success: function(counter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(counter.get('time'));
+              },
+              error: function(counter, error) {
+                console.log('Failed to save Visitor num, with error message: ' + error.message);
+              }
+            });
+          } else {
+            var newcounter = new Counter();
+            /* Set ACL */
+            var acl = new AV.ACL();
+            acl.setPublicReadAccess(true);
+            acl.setPublicWriteAccess(true);
+            newcounter.setACL(acl);
+            /* End Set ACL */
+            newcounter.set("title", title);
+            newcounter.set("url", url);
+            newcounter.set("time", 1);
+            newcounter.save(null, {
+              success: function(newcounter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(newcounter.get('time'));
+              },
+              error: function(newcounter, error) {
+                console.log('Failed to create');
+              }
+            });
+          }
+        },
+        error: function(error) {
+          console.log('Error:' + error.code + " " + error.message);
+        }
+      });
+    }
+
+    $(function() {
+      var Counter = AV.Object.extend("Counter");
+      if ($('.leancloud_visitors').length == 1) {
+        addCount(Counter);
+      } else if ($('.post-title-link').length > 1) {
+        showTime(Counter);
+      }
+    });
+  </script>
+
+
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

@@ -1,0 +1,1033 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Android," />
+
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="Evan-Lam's Blog" type="application/atom+xml" />
+
+
+
+
+
+
+<meta name="description" content="1. 状态栏上闹钟图标显示过程简介闹钟App设置闹钟时，都是通过AlarmManager，即AlarmManagerService服务来实现的，每次创建或者更新闹钟时，都会调用AlarmManager.setExact()来向AlarmManagerService服务设置闹钟响的时间； AlarmManagerService服务通过native函数set()来设置内核中闹钟，并且发送广播Alarm">
+<meta name="keywords" content="Android">
+<meta property="og:type" content="article">
+<meta property="og:title" content="状态栏上闹钟图标显示过程简介">
+<meta property="og:url" content="https://liangyunfeng.github.io/2016/03/21/状态栏上闹钟图标显示过程简介/index.html">
+<meta property="og:site_name" content="Evan-Lam&#39;s Blog">
+<meta property="og:description" content="1. 状态栏上闹钟图标显示过程简介闹钟App设置闹钟时，都是通过AlarmManager，即AlarmManagerService服务来实现的，每次创建或者更新闹钟时，都会调用AlarmManager.setExact()来向AlarmManagerService服务设置闹钟响的时间； AlarmManagerService服务通过native函数set()来设置内核中闹钟，并且发送广播Alarm">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="https://liangyunfeng.github.io/2016/03/21/状态栏上闹钟图标显示过程简介/时序图.jpg">
+<meta property="og:updated_time" content="2018-05-21T12:32:00.318Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="状态栏上闹钟图标显示过程简介">
+<meta name="twitter:description" content="1. 状态栏上闹钟图标显示过程简介闹钟App设置闹钟时，都是通过AlarmManager，即AlarmManagerService服务来实现的，每次创建或者更新闹钟时，都会调用AlarmManager.setExact()来向AlarmManagerService服务设置闹钟响的时间； AlarmManagerService服务通过native函数set()来设置内核中闹钟，并且发送广播Alarm">
+<meta name="twitter:image" content="https://liangyunfeng.github.io/2016/03/21/状态栏上闹钟图标显示过程简介/时序图.jpg">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://liangyunfeng.github.io/2016/03/21/状态栏上闹钟图标显示过程简介/"/>
+
+
+
+
+
+  <title>状态栏上闹钟图标显示过程简介 | Evan-Lam's Blog</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Evan-Lam's Blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">持之以恒，契而不舍</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br />
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  
+  <div class="algolia-popup popup search-popup">
+    <div class="algolia-search">
+      <div class="algolia-search-input-icon">
+        <i class="fa fa-search"></i>
+      </div>
+      <div class="algolia-search-input" id="algolia-search-input"></div>
+    </div>
+
+    <div class="algolia-results">
+      <div id="algolia-stats"></div>
+      <div id="algolia-hits"></div>
+      <div id="algolia-pagination" class="algolia-pagination"></div>
+    </div>
+
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+  </div>
+
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://liangyunfeng.github.io/2016/03/21/状态栏上闹钟图标显示过程简介/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Evan-Lam">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/touxiang.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Evan-Lam's Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">状态栏上闹钟图标显示过程简介</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2016-03-21T20:10:26+08:00">
+                2016-03-21
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Android/" itemprop="url" rel="index">
+                    <span itemprop="name">Android</span>
+                  </a>
+                </span>
+
+                
+                
+                  ， 
+                
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Android/SystemUI/" itemprop="url" rel="index">
+                    <span itemprop="name">SystemUI</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+             <span id="/2016/03/21/状态栏上闹钟图标显示过程简介/" class="leancloud_visitors" data-flag-title="状态栏上闹钟图标显示过程简介">
+               <span class="post-meta-divider">|</span>
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               
+                 <span class="post-meta-item-text">阅读次数&#58;</span>
+               
+                 <span class="leancloud-visitors-count"></span>
+             </span>
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h1 id="1-状态栏上闹钟图标显示过程简介"><a href="#1-状态栏上闹钟图标显示过程简介" class="headerlink" title="1. 状态栏上闹钟图标显示过程简介"></a>1. 状态栏上闹钟图标显示过程简介</h1><p>闹钟App设置闹钟时，都是通过AlarmManager，即AlarmManagerService服务来实现的，<br>每次创建或者更新闹钟时，都会调用AlarmManager.setExact()来向AlarmManagerService服务设置闹钟响的时间；</p>
+<p>AlarmManagerService服务通过native函数set()来设置内核中闹钟，并且发送广播AlarmManager.ACTION_NEXT_ALARM_CLOCK_CHANGED来通知SystemUI进行系统图标的显示，同时会循环调用native函数waitForAlarm()监听到Alarm变化，当监听到有Alarm时间到了，也会发送AlarmManager.ACTION_NEXT_ALARM_CLOCK_CHANGED广播出去；</p>
+<p>SystemUI的PhoneStatusBarPolicy.mIntentReceiver会监听这个广播，当接收到AlarmManager.ACTION_NEXT_ALARM_CLOCK_CHANGED广播后，调用StatusBarManagerService服务来设置状态上显示的system icon和icon visibility：</p>
+<pre><code>mService.setIcon(SLOT_ALARM_CLOCK, R.drawable.stat_sys_alarm, 0, null);
+mService.setIconVisibility(SLOT_ALARM_CLOCK, mCurrentUserSetup &amp;&amp; hasAlarm);
+</code></pre><p>在StatusBarManagerService.setIcon()中，服务会通过IStatusBar mBar来处理icon的显示情况，<br>mBar就是SystemUI中BaseStatusBar的IStatusBar.Stub子类CommandQueue类mCommandQueue对象，通过注册到StatusBarManagerService服务中的，<br>BaseStatusBar创建mCommandQueue对象时，还把实现了CommandQueue.Callbacks接口的BaseStatusBar对象也传递过去，<br>CommandQueue mCommandQueue = new CommandQueue(this,mIconList);<br>这样StatusBarManagerService服务就可以通过SystemUI中的IStatusBar.Stub子类CommandQueue类mCommandQueue对象来调用SystemUI来处理icon显示</p>
+<p>注意：因为notification icon和system icon是状态栏上左右两边的不同的图标，左边是通知图标(notification icon)，右边的是系统图标(system icon); system icon显示是不受notification影响的，所以调用NotificationManager发出通知是不会在system icon区域显示图标的，只会在notification icon区域显示，所以这里实现闹钟图标显示时是Alarm通过AlarmManagerService发广播给SystemUI的PhoneStatusBarPolicy，SystemUI再调用StatusBarManagerService服务添加icon，StatusBarManagerService服务再通过SystemUI的CommandQueue对象来实现在SystemUI中显示icon的。</p>
+<h1 id="2-状态栏上闹钟图标显示过程的时序图"><a href="#2-状态栏上闹钟图标显示过程的时序图" class="headerlink" title="2. 状态栏上闹钟图标显示过程的时序图"></a>2. 状态栏上闹钟图标显示过程的时序图</h1><img src="/2016/03/21/状态栏上闹钟图标显示过程简介/时序图.jpg" title="时序图">
+<h1 id="3-状态栏上闹钟图标显示过程的实现代码"><a href="#3-状态栏上闹钟图标显示过程的实现代码" class="headerlink" title="3. 状态栏上闹钟图标显示过程的实现代码"></a>3. 状态栏上闹钟图标显示过程的实现代码</h1><h3 id="1-闹钟App中调用设置闹钟："><a href="#1-闹钟App中调用设置闹钟：" class="headerlink" title="1).闹钟App中调用设置闹钟："></a>1).闹钟App中调用设置闹钟：</h3><blockquote>
+<p>AlarmProvider.java</p>
+</blockquote>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">enableNextAlert</span><span class="params">(Context context)</span> </span>&#123;</span><br><span class="line">	...</span><br><span class="line">	AlarmManager am = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);</span><br><span class="line">	am.setExact(AlarmManager.RTC_WAKEUP, item.alarmAlertTime, mPendingIntent);</span><br><span class="line">	...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="2-AlarmManager设置闹钟："><a href="#2-AlarmManager设置闹钟：" class="headerlink" title="2).AlarmManager设置闹钟："></a>2).AlarmManager设置闹钟：</h3><p>在闹钟App中调用AlarmManager的setExact()方法后，这里AlarmManager就会通过IAlarmManager.Stub和AlarmManagerServie通信Binder通信。</p>
+<blockquote>
+<p>AlarmManager.java</p>
+</blockquote>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">setExact</span><span class="params">(<span class="keyword">int</span> type, <span class="keyword">long</span> triggerAtMillis, PendingIntent operation)</span> </span>&#123;</span><br><span class="line">    setImpl(type, triggerAtMillis, WINDOW_EXACT, <span class="number">0</span>, <span class="number">0</span>, operation, <span class="keyword">null</span>, <span class="keyword">null</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">setImpl</span><span class="params">(<span class="keyword">int</span> type, <span class="keyword">long</span> triggerAtMillis, <span class="keyword">long</span> windowMillis, <span class="keyword">long</span> intervalMillis,</span></span></span><br><span class="line"><span class="function"><span class="params">        <span class="keyword">int</span> flags, PendingIntent operation, WorkSource workSource, AlarmClockInfo alarmClock)</span> </span>&#123;</span><br><span class="line">	...</span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">        mService.set(type, triggerAtMillis, windowMillis, intervalMillis, flags, operation,</span><br><span class="line">                workSource, alarmClock);</span><br><span class="line">    &#125; <span class="keyword">catch</span> (RemoteException ex) &#123;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="3-AlarmManagerService设置闹钟："><a href="#3-AlarmManagerService设置闹钟：" class="headerlink" title="3).AlarmManagerService设置闹钟："></a>3).AlarmManagerService设置闹钟：</h3><p>更新SystemUI状态栏中系统图标闹钟图标的广播是从AlarmManagerService这个服务中发出来了，这样可以所有App中设置闹钟的逻辑都会集中在这个服务中来处理。</p>
+<blockquote>
+<p>AlarmManagerService.java</p>
+</blockquote>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> <span class="keyword">final</span> IBinder mService = <span class="keyword">new</span> IAlarmManager.Stub() &#123;</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">set</span><span class="params">(String callingPackage,</span></span></span><br><span class="line"><span class="function"><span class="params">            <span class="keyword">int</span> type, <span class="keyword">long</span> triggerAtTime, <span class="keyword">long</span> windowLength, <span class="keyword">long</span> interval, <span class="keyword">int</span> flags,</span></span></span><br><span class="line"><span class="function"><span class="params">            PendingIntent operation, IAlarmListener directReceiver, String listenerTag,</span></span></span><br><span class="line"><span class="function"><span class="params">            WorkSource workSource, AlarmManager.AlarmClockInfo alarmClock)</span> </span>&#123;</span><br><span class="line">		...</span><br><span class="line">        setImpl(type, triggerAtTime, windowLength, interval, operation, directReceiver,</span><br><span class="line">                listenerTag, flags, workSource, alarmClock, callingUid, callingPackage);</span><br><span class="line">		...</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">setImpl</span><span class="params">(<span class="keyword">int</span> type, <span class="keyword">long</span> triggerAtTime, <span class="keyword">long</span> windowLength, <span class="keyword">long</span> interval,</span></span></span><br><span class="line"><span class="function"><span class="params">        PendingIntent operation, IAlarmListener directReceiver, String listenerTag,</span></span></span><br><span class="line"><span class="function"><span class="params">        <span class="keyword">int</span> flags, WorkSource workSource, AlarmManager.AlarmClockInfo alarmClock,</span></span></span><br><span class="line"><span class="function"><span class="params">        <span class="keyword">int</span> callingUid, String callingPackage)</span> </span>&#123;</span><br><span class="line">	...</span><br><span class="line">    <span class="comment">/* AppCore: Restrict 500 alarms for each App &#125; */</span></span><br><span class="line">    setImplLocked(type, triggerAtTime, triggerElapsed, windowLength, maxElapsed,</span><br><span class="line">            interval, operation, directReceiver, listenerTag, flags, <span class="keyword">true</span>, workSource,</span><br><span class="line">            alarmClock, callingUid, callingPackage);</span><br><span class="line">	...</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">private</span> Alarm <span class="title">setImplLocked</span><span class="params">(<span class="keyword">int</span> type, <span class="keyword">long</span> when, <span class="keyword">long</span> whenElapsed, <span class="keyword">long</span> windowLength,</span></span></span><br><span class="line"><span class="function"><span class="params">        <span class="keyword">long</span> maxWhen, <span class="keyword">long</span> interval, PendingIntent operation, IAlarmListener directReceiver,</span></span></span><br><span class="line"><span class="function"><span class="params">        String listenerTag, <span class="keyword">int</span> flags, <span class="keyword">boolean</span> doValidate, WorkSource workSource,</span></span></span><br><span class="line"><span class="function"><span class="params">        AlarmManager.AlarmClockInfo alarmClock, <span class="keyword">int</span> callingUid, String callingPackage)</span> </span>&#123;</span><br><span class="line">    Alarm a = <span class="keyword">new</span> Alarm(type, when, whenElapsed, windowLength, maxWhen, interval,</span><br><span class="line">            operation, directReceiver, listenerTag, workSource, flags, alarmClock,</span><br><span class="line">            callingUid, callingPackage);</span><br><span class="line">	...</span><br><span class="line">	setImplLocked(a, <span class="keyword">false</span>, doValidate);</span><br><span class="line">	<span class="keyword">return</span> a;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">setImplLocked</span><span class="params">(Alarm a, <span class="keyword">boolean</span> rebatching, <span class="keyword">boolean</span> doValidate)</span> </span>&#123;</span><br><span class="line">	...</span><br><span class="line">    rescheduleKernelAlarmsLocked();		<span class="comment">//调用内核的native方法设置闹钟</span></span><br><span class="line">    updateNextAlarmClockLocked();		<span class="comment">//更新状态栏中显示的系统图标状态</span></span><br><span class="line">	...</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">updateNextAlarmClockLocked</span><span class="params">()</span> </span>&#123;</span><br><span class="line">	...</span><br><span class="line">    updateNextAlarmInfoForUserLocked(userId, newAlarm);	<span class="comment">//更新指定userId状态栏中显示的系统图标状态</span></span><br><span class="line">	...</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">updateNextAlarmInfoForUserLocked</span><span class="params">(<span class="keyword">int</span> userId,</span></span></span><br><span class="line"><span class="function"><span class="params">        AlarmManager.AlarmClockInfo alarmClock)</span> </span>&#123;</span><br><span class="line">	...</span><br><span class="line">    mHandler.removeMessages(AlarmHandler.SEND_NEXT_ALARM_CLOCK_CHANGED);</span><br><span class="line">    mHandler.sendEmptyMessage(AlarmHandler.SEND_NEXT_ALARM_CLOCK_CHANGED);	<span class="comment">//通过UI线程去发送广播</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">private</span> <span class="class"><span class="keyword">class</span> <span class="title">AlarmHandler</span> <span class="keyword">extends</span> <span class="title">Handler</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">handleMessage</span><span class="params">(Message msg)</span> </span>&#123;</span><br><span class="line">		...</span><br><span class="line">        <span class="keyword">switch</span> (msg.what) &#123;</span><br><span class="line">            <span class="keyword">case</span> SEND_NEXT_ALARM_CLOCK_CHANGED:</span><br><span class="line">                sendNextAlarmClockChanged();</span><br><span class="line">                <span class="keyword">break</span>;</span><br><span class="line">		...</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">sendNextAlarmClockChanged</span><span class="params">()</span> </span>&#123;</span><br><span class="line">	....</span><br><span class="line">    getContext().sendBroadcastAsUser(NEXT_ALARM_CLOCK_CHANGED_INTENT,</span><br><span class="line">            <span class="keyword">new</span> UserHandle(userId));						<span class="comment">//发送广播去显示状态栏中的系统图标</span></span><br><span class="line">    ....</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> Intent NEXT_ALARM_CLOCK_CHANGED_INTENT =</span><br><span class="line">        <span class="keyword">new</span> Intent(AlarmManager.ACTION_NEXT_ALARM_CLOCK_CHANGED)</span><br><span class="line">                .addFlags(Intent.FLAG_RECEIVER_REPLACE_PENDING);</span><br></pre></td></tr></table></figure>
+<p>以下是如何调用内核来设置闹钟和闹钟时间到后的处理逻辑，可以参考如下，不过这里我们只是跟踪状态栏上系统图标中闹钟图标的显示过程，所以就不深入跟踪了，有兴趣的同事可以自己研究。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">rescheduleKernelAlarmsLocked</span><span class="params">()</span> </span>&#123;				<span class="comment">//调用内核的native方法设置闹钟</span></span><br><span class="line">	...</span><br><span class="line">    setLocked(ELAPSED_REALTIME, nextNonWakeup);</span><br><span class="line">	...</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">setLocked</span><span class="params">(<span class="keyword">int</span> type, <span class="keyword">long</span> when)</span> </span>&#123;</span><br><span class="line">	...</span><br><span class="line">    set(mNativeData, type, alarmSeconds, alarmNanoseconds);</span><br><span class="line">	...</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">native</span> <span class="keyword">void</span> <span class="title">set</span><span class="params">(<span class="keyword">long</span> nativeData, <span class="keyword">int</span> type, <span class="keyword">long</span> seconds, <span class="keyword">long</span> nanoseconds)</span></span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">private</span> <span class="class"><span class="keyword">class</span> <span class="title">AlarmThread</span> <span class="keyword">extends</span> <span class="title">Thread</span></span></span><br><span class="line"><span class="class"></span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">AlarmThread</span><span class="params">()</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="keyword">super</span>(<span class="string">"AlarmManager"</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">run</span><span class="params">()</span></span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        <span class="keyword">while</span> (<span class="keyword">true</span>)</span><br><span class="line">        &#123;</span><br><span class="line">			...</span><br><span class="line">            <span class="keyword">int</span> result = waitForAlarm(mNativeData);	<span class="comment">//循环调用阻塞函数waitForAlarm()来监听到Alarm变化</span></span><br><span class="line">			<span class="keyword">boolean</span> hasWakeup = triggerAlarmsLocked(triggerList, nowELAPSED, nowRTC);</span><br><span class="line">			<span class="keyword">if</span> (!hasWakeup &amp;&amp; checkAllowNonWakeupDelayLocked(nowELAPSED)) &#123;</span><br><span class="line">				rescheduleKernelAlarmsLocked();		<span class="comment">//调用内核的native方法设置闹钟</span></span><br><span class="line">				updateNextAlarmClockLocked();		<span class="comment">//更新状态栏中显示的系统图标状态</span></span><br><span class="line">			&#125;</span><br><span class="line">			...</span><br><span class="line">		&#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="4-SystemUI接收广播："><a href="#4-SystemUI接收广播：" class="headerlink" title="4). SystemUI接收广播："></a>4). SystemUI接收广播：</h3><blockquote>
+<p>PhoneStatusBarPolicy.java</p>
+</blockquote>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> <span class="keyword">final</span> StatusbarManager mService;</span><br><span class="line"></span><br><span class="line"><span class="keyword">private</span> BroadcastReceiver mIntentReceiver = <span class="keyword">new</span> BroadcastReceiver() &#123;</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">onReceive</span><span class="params">(Context context, Intent intent)</span> </span>&#123;</span><br><span class="line">        String action = intent.getAction();</span><br><span class="line">        <span class="keyword">if</span> (action.equals(AlarmManager.ACTION_NEXT_ALARM_CLOCK_CHANGED)) &#123;</span><br><span class="line">            updateAlarm();</span><br><span class="line">        &#125;</span><br><span class="line">		...</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="title">PhoneStatusBarPolicy</span><span class="params">(Context context, StatusBarIconController iconController,</span></span></span><br><span class="line"><span class="function"><span class="params">        CastController cast, HotspotController hotspot, UserInfoController userInfoController,</span></span></span><br><span class="line"><span class="function"><span class="params">        BluetoothController bluetooth, RotationLockController rotationLockController,</span></span></span><br><span class="line"><span class="function"><span class="params">        DataSaverController dataSaver)</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// listen for broadcasts</span></span><br><span class="line">    IntentFilter filter = <span class="keyword">new</span> IntentFilter();</span><br><span class="line">    filter.addAction(AlarmManager.ACTION_NEXT_ALARM_CLOCK_CHANGED);</span><br><span class="line">    filter.addAction(AudioManager.RINGER_MODE_CHANGED_ACTION);</span><br><span class="line">    filter.addAction(AudioManager.INTERNAL_RINGER_MODE_CHANGED_ACTION);</span><br><span class="line">    filter.addAction(TelephonyIntents.ACTION_SIM_STATE_CHANGED);</span><br><span class="line">    filter.addAction(TelecomManager.ACTION_CURRENT_TTY_MODE_CHANGED);</span><br><span class="line">    mContext.registerReceiver(mIntentReceiver, filter, <span class="keyword">null</span>, mHandler);</span><br><span class="line">	...</span><br><span class="line">    <span class="comment">// Alarm clock</span></span><br><span class="line">    mService.setIcon(SLOT_ALARM_CLOCK, R.drawable.stat_sys_alarm, <span class="number">0</span>, <span class="keyword">null</span>);</span><br><span class="line">    mService.setIconVisibility(SLOT_ALARM_CLOCK, <span class="keyword">false</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">updateAlarm</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">final</span> AlarmClockInfo alarm = mAlarmManager.getNextAlarmClock(UserHandle.USER_CURRENT);</span><br><span class="line">    <span class="keyword">final</span> <span class="keyword">boolean</span> hasAlarm = alarm != <span class="keyword">null</span> &amp;&amp; alarm.getTriggerTime() &gt; <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">final</span> <span class="keyword">boolean</span> zenNone = mZen == Global.ZEN_MODE_NO_INTERRUPTIONS;</span><br><span class="line">    <span class="keyword">if</span> (mCurrentUserSetup &amp;&amp; hasAlarm) &#123;</span><br><span class="line">		<span class="comment">//通过StatusbarManagerService去更新系统图标</span></span><br><span class="line">        mService.setIcon(SLOT_ALARM_CLOCK, R.drawable.stat_sys_alarm, <span class="number">0</span>, <span class="keyword">null</span>);</span><br><span class="line">    &#125;</span><br><span class="line">	<span class="comment">//通过StatusbarManagerService去显示系统图标</span></span><br><span class="line">    mService.setIconVisibility(SLOT_ALARM_CLOCK, mCurrentUserSetup &amp;&amp; hasAlarm);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="5-StatusBarManagerService调用SystemUI的通信对象来添加系统图标："><a href="#5-StatusBarManagerService调用SystemUI的通信对象来添加系统图标：" class="headerlink" title="5). StatusBarManagerService调用SystemUI的通信对象来添加系统图标："></a>5). StatusBarManagerService调用SystemUI的通信对象来添加系统图标：</h3><blockquote>
+<p>StatusBarManagerService.java</p>
+</blockquote>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> <span class="keyword">volatile</span> IStatusBar mBar;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">registerStatusBar</span><span class="params">(IStatusBar bar, StatusBarIconList iconList,</span></span></span><br><span class="line"><span class="function"><span class="params">        <span class="keyword">int</span> switches[], List&lt;IBinder&gt; binders)</span> </span>&#123;</span><br><span class="line">	...</span><br><span class="line">    mBar = bar;</span><br><span class="line">	...</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">setIcon</span><span class="params">(String slot, String iconPackage, <span class="keyword">int</span> iconId, <span class="keyword">int</span> iconLevel,</span></span></span><br><span class="line"><span class="function"><span class="params">        String contentDescription)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">int</span> index = mIcons.getSlotIndex(slot);</span><br><span class="line">    StatusBarIcon icon = <span class="keyword">new</span> StatusBarIcon(iconPackage, UserHandle.OWNER, iconId,</span><br><span class="line">            iconLevel, <span class="number">0</span>,</span><br><span class="line">            contentDescription);</span><br><span class="line">    mIcons.setIcon(index, icon);</span><br><span class="line">    <span class="keyword">if</span> (mBar != <span class="keyword">null</span>) &#123;</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            mBar.setIcon(index, icon);</span><br><span class="line">        &#125; <span class="keyword">catch</span> (RemoteException ex) &#123;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Override</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">setIconVisibility</span><span class="params">(String slot, <span class="keyword">boolean</span> visible)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">int</span> index = mIcons.getSlotIndex(slot);</span><br><span class="line">    StatusBarIcon icon = mIcons.getIcon(index);</span><br><span class="line">    <span class="keyword">if</span> (icon.visible != visible) &#123;</span><br><span class="line">        icon.visible = visible;</span><br><span class="line">            <span class="keyword">if</span> (mBar != <span class="keyword">null</span>) &#123;</span><br><span class="line">                <span class="keyword">try</span> &#123;</span><br><span class="line">                    mBar.setIcon(index, icon);</span><br><span class="line">                &#125; <span class="keyword">catch</span> (RemoteException ex) &#123;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这里的IStatusBar其实就是SystemUI中的CommandQueue类，它是IStatusBar.Stub的子类，它是在BaseStatusBar的start()方法中通过获取StatusBarManagerService服务对象，调用服务对象的registerStatusBar(IStatusBar bar, StatusBarIconList iconList,int switches[], List<ibinder> binders)方法把CommandQueue对象注册到StatusBarManagerService服务对象中来方便StatusBarManagerService服务和SystemUI进程之间进行通信的。BaseStatusBar中建立和StatusBarManagerService服务通信的代码如下：</ibinder></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">protected</span> IStatusBarService mBarService;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">start</span><span class="params">()</span> </span>&#123;</span><br><span class="line">	...</span><br><span class="line">	mCommandQueue = <span class="keyword">new</span> CommandQueue(<span class="keyword">this</span>, mIconList);</span><br><span class="line">    mBarService = IStatusBarService.Stub.asInterface(</span><br><span class="line">            ServiceManager.getService(Context.STATUS_BAR_SERVICE));</span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">        mBarService.registerStatusBar(mCommandQueue, mIconList, switches, binders);</span><br><span class="line">    &#125; <span class="keyword">catch</span> (RemoteException ex) &#123;</span><br><span class="line">        <span class="comment">// If the system process isn't there we're doomed anyway.</span></span><br><span class="line">    &#125;</span><br><span class="line">	...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="6-SystemUI中CommandQueue通信接口："><a href="#6-SystemUI中CommandQueue通信接口：" class="headerlink" title="6). SystemUI中CommandQueue通信接口："></a>6). SystemUI中CommandQueue通信接口：</h3><blockquote>
+<p>CommandQueue.java</p>
+</blockquote>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> Callbacks mCallbacks;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="title">CommandQueue</span><span class="params">(Callbacks callbacks, StatusBarIconList list)</span> </span>&#123;</span><br><span class="line">    mCallbacks = callbacks;	<span class="comment">//mCallbacks是BaseStatusBar和PhoneStatusBar实现CommandQueue.Callbacks的接口对象</span></span><br><span class="line">    mList = list;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">setIcon</span><span class="params">(<span class="keyword">int</span> index, StatusBarIcon icon)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">synchronized</span> (mList) &#123;</span><br><span class="line">        <span class="keyword">int</span> what = MSG_ICON | index;</span><br><span class="line">        mHandler.removeMessages(what);</span><br><span class="line">        mHandler.obtainMessage(what, OP_SET_ICON, <span class="number">0</span>, icon.clone()).sendToTarget();	<span class="comment">//统一发到handler中处理</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">private</span> <span class="keyword">final</span> <span class="class"><span class="keyword">class</span> <span class="title">H</span> <span class="keyword">extends</span> <span class="title">Handler</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">handleMessage</span><span class="params">(Message msg)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">final</span> <span class="keyword">int</span> what = msg.what &amp; MSG_MASK;</span><br><span class="line">        <span class="keyword">switch</span> (what) &#123;</span><br><span class="line">            <span class="keyword">case</span> MSG_ICON: &#123;</span><br><span class="line">                <span class="keyword">final</span> <span class="keyword">int</span> index = msg.what &amp; INDEX_MASK;</span><br><span class="line">                <span class="keyword">final</span> <span class="keyword">int</span> viewIndex = mList.getViewIndex(index);</span><br><span class="line">                <span class="keyword">switch</span> (msg.arg1) &#123;</span><br><span class="line">                    <span class="keyword">case</span> OP_SET_ICON: &#123;</span><br><span class="line">                        StatusBarIcon icon = (StatusBarIcon)msg.obj;</span><br><span class="line">                        StatusBarIcon old = mList.getIcon(index);</span><br><span class="line">                        <span class="keyword">if</span> (old == <span class="keyword">null</span>) &#123;</span><br><span class="line">                            mList.setIcon(index, icon);</span><br><span class="line">							<span class="comment">//调用PhoneStatusBar.addIcon()方法来添加系统图标</span></span><br><span class="line">                            mCallbacks.addIcon(mList.getSlot(index), index, viewIndex, icon);</span><br><span class="line">                        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                            mList.setIcon(index, icon);</span><br><span class="line">							<span class="comment">//调用PhoneStatusBar.addIcon()方法来更新系统图标</span></span><br><span class="line">                            mCallbacks.updateIcon(mList.getSlot(index), index, viewIndex,</span><br><span class="line">                                    old, icon);	</span><br><span class="line">                        &#125;</span><br><span class="line">                        <span class="keyword">break</span>;</span><br><span class="line">                    &#125;</span><br><span class="line">                &#125;</span><br><span class="line">                <span class="keyword">break</span>;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="7-SystemUI中PhoneStatusBar调用状态栏图标控制类来添加系统图标："><a href="#7-SystemUI中PhoneStatusBar调用状态栏图标控制类来添加系统图标：" class="headerlink" title="7). SystemUI中PhoneStatusBar调用状态栏图标控制类来添加系统图标："></a>7). SystemUI中PhoneStatusBar调用状态栏图标控制类来添加系统图标：</h3><blockquote>
+<p>PhoneStatusBar.java</p>
+</blockquote>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">StatusBarIconController mIconController;	<span class="comment">//状态栏图标控制类</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">addIcon</span><span class="params">(String slot, <span class="keyword">int</span> index, <span class="keyword">int</span> viewIndex, StatusBarIcon icon)</span> </span>&#123;</span><br><span class="line">    mIconController.addSystemIcon(slot, index, viewIndex, icon);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="8-SystemUI中StatusBarIconController添加系统图标："><a href="#8-SystemUI中StatusBarIconController添加系统图标：" class="headerlink" title="8). SystemUI中StatusBarIconController添加系统图标："></a>8). SystemUI中StatusBarIconController添加系统图标：</h3><blockquote>
+<p>StatusBarIconController.java &amp; StatusBarIconView.java</p>
+</blockquote>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//StatusBarIconController.java</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">private</span> LinearLayout mStatusIcons;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="title">StatusBarIconController</span><span class="params">(Context context, View statusBar, View keyguardStatusBar,</span></span></span><br><span class="line"><span class="function"><span class="params">        PhoneStatusBar phoneStatusBar)</span> </span>&#123;</span><br><span class="line">	...</span><br><span class="line">    mStatusIcons = (LinearLayout) statusBar.findViewById(R.id.statusIcons);	<span class="comment">//系统图标布局容器</span></span><br><span class="line">	...</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">addSystemIcon</span><span class="params">(String slot, <span class="keyword">int</span> index, <span class="keyword">int</span> viewIndex, StatusBarIcon icon)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">boolean</span> blocked = mIconBlacklist.contains(slot);</span><br><span class="line">    StatusBarIconView view = <span class="keyword">new</span> StatusBarIconView(mContext, slot, <span class="keyword">null</span>, blocked, <span class="number">0</span>);</span><br><span class="line">    view.set(icon);</span><br><span class="line">    mStatusIcons.addView(view, viewIndex, <span class="keyword">new</span> LinearLayout.LayoutParams(</span><br><span class="line">            ViewGroup.LayoutParams.WRAP_CONTENT, mIconSize));	<span class="comment">//把图标添加到布局容器中</span></span><br><span class="line">    view = <span class="keyword">new</span> StatusBarIconView(mContext, slot, <span class="keyword">null</span>, blocked, <span class="number">0</span>);</span><br><span class="line">    view.set(icon);</span><br><span class="line">    mStatusIconsKeyguard.addView(view, viewIndex, <span class="keyword">new</span> LinearLayout.LayoutParams(</span><br><span class="line">            ViewGroup.LayoutParams.WRAP_CONTENT, mIconSize));</span><br><span class="line">    applyIconTint();</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">//StatusBarIconView.java</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">set</span><span class="params">(StatusBarIcon icon)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (!iconEquals) &#123;</span><br><span class="line">        <span class="keyword">if</span> (!updateDrawable(<span class="keyword">false</span> <span class="comment">/* no clear */</span>)) <span class="keyword">return</span> <span class="keyword">false</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> (!numberEquals) &#123;</span><br><span class="line">        <span class="keyword">if</span> (icon.number &gt; <span class="number">0</span> &amp;&amp; getContext().getResources().getBoolean(</span><br><span class="line">                    R.bool.config_statusBarShowNumber)) &#123;</span><br><span class="line">            placeNumber();</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            mNumberBackground = <span class="keyword">null</span>;</span><br><span class="line">            mNumberText = <span class="keyword">null</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        invalidate();</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> (!visibilityEquals) &#123;</span><br><span class="line">        setVisibility(icon.visible &amp;&amp; !mBlocked ? VISIBLE : GONE);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">true</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">updateDrawable</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    updateDrawable(<span class="keyword">true</span> <span class="comment">/* with clear */</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">boolean</span> <span class="title">updateDrawable</span><span class="params">(<span class="keyword">boolean</span> withClear)</span> </span>&#123;</span><br><span class="line">    Drawable drawable = getIcon(mIcon);</span><br><span class="line">    setImageDrawable(drawable);</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">true</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">private</span> Drawable <span class="title">getIcon</span><span class="params">(StatusBarIcon icon)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> getIcon(getContext(), icon);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> Drawable <span class="title">getIcon</span><span class="params">(Context context, StatusBarIcon icon)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> icon.icon.loadDrawableAsUser(context, userId);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h1 id="4-总结"><a href="#4-总结" class="headerlink" title="4.总结"></a>4.总结</h1><p>通过以上对状态栏中闹钟图标的显示过程，我们可以知道，状态栏右边的系统图标的显示，是可以由系统App控制来显示的，系统App可以通过获取StatusBarManagerService这个服务对象来设置状态栏中的系统图标。</p>
+<p>代码实现如下：<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> String SLOT_ALARM_CLOCK = <span class="string">"alarm_clock"</span>;</span><br><span class="line"><span class="keyword">private</span> <span class="keyword">final</span> StatusBarManager mService = (StatusBarManager) context.getSystemService(Context.STATUS_BAR_SERVICE);</span><br><span class="line">mService.setIcon(SLOT_ALARM_CLOCK, R.drawable.stat_sys_alarm, <span class="number">0</span>, <span class="keyword">null</span>);</span><br><span class="line">mService.setIconVisibility(SLOT_ALARM_CLOCK, mCurrentUserSetup &amp;&amp; hasAlarm);</span><br></pre></td></tr></table></figure><br>还要记得在AndroidManifest.xml文件中加入以下权限：</p>
+<pre><code>&lt;uses-permission android:name=&quot;android.permission.STATUS_BAR_SERVICE&quot; /&gt;
+&lt;uses-permission android:name=&quot;android.permission.STATUS_BAR&quot; /&gt;
+</code></pre>
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Android/" rel="tag"># Android</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2017/01/14/面向对象设计原则/" rel="prev" title="面向对象设计原则">
+                面向对象设计原则 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image"
+                src="/images/touxiang.jpg"
+                alt="Evan-Lam" />
+            
+              <p class="site-author-name" itemprop="name">Evan-Lam</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">6</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">4</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">3</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+            <div class="feed-link motion-element">
+              <a href="/atom.xml" rel="alternate">
+                <i class="fa fa-rss"></i>
+                RSS
+              </a>
+            </div>
+          
+
+          
+            <div class="links-of-author motion-element">
+                
+                  <span class="links-of-author-item">
+                    <a href="https://github.com/liangyunfeng" target="_blank" title="GitHub">
+                      
+                        <i class="fa fa-fw fa-github"></i>GitHub</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="https://weibo.com/2717692811/profile?topnav=1&wvr=6" target="_blank" title="微博">
+                      
+                        <i class="fa fa-fw fa-weibo"></i>微博</a>
+                  </span>
+                
+            </div>
+          
+
+          
+          
+
+          
+          
+            <div class="links-of-blogroll motion-element links-of-blogroll-block">
+              <div class="links-of-blogroll-title">
+                <i class="fa  fa-fw fa-link"></i>
+                Links
+              </div>
+              <ul class="links-of-blogroll-list">
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="https://blog.csdn.net/a38876399" title="CSDN" target="_blank">CSDN</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="https://www.jianshu.com/u/9f223d7d7208" title="简书" target="_blank">简书</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="https://blog.csdn.net/Luoshengyang/" title="老罗的Android之旅" target="_blank">老罗的Android之旅</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="http://chuangzaoshi.com/" title="创建狮" target="_blank">创建狮</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="https://github.com/google" title="Google" target="_blank">Google</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="http://androidxref.com/" title="AndroidXRef" target="_blank">AndroidXRef</a>
+                  </li>
+                
+              </ul>
+            </div>
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#1-状态栏上闹钟图标显示过程简介"><span class="nav-number">1.</span> <span class="nav-text">1. 状态栏上闹钟图标显示过程简介</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#2-状态栏上闹钟图标显示过程的时序图"><span class="nav-number">2.</span> <span class="nav-text">2. 状态栏上闹钟图标显示过程的时序图</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#3-状态栏上闹钟图标显示过程的实现代码"><span class="nav-number">3.</span> <span class="nav-text">3. 状态栏上闹钟图标显示过程的实现代码</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-闹钟App中调用设置闹钟："><span class="nav-number">3.0.1.</span> <span class="nav-text">1).闹钟App中调用设置闹钟：</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-AlarmManager设置闹钟："><span class="nav-number">3.0.2.</span> <span class="nav-text">2).AlarmManager设置闹钟：</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-AlarmManagerService设置闹钟："><span class="nav-number">3.0.3.</span> <span class="nav-text">3).AlarmManagerService设置闹钟：</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-SystemUI接收广播："><span class="nav-number">3.0.4.</span> <span class="nav-text">4). SystemUI接收广播：</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#5-StatusBarManagerService调用SystemUI的通信对象来添加系统图标："><span class="nav-number">3.0.5.</span> <span class="nav-text">5). StatusBarManagerService调用SystemUI的通信对象来添加系统图标：</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#6-SystemUI中CommandQueue通信接口："><span class="nav-number">3.0.6.</span> <span class="nav-text">6). SystemUI中CommandQueue通信接口：</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#7-SystemUI中PhoneStatusBar调用状态栏图标控制类来添加系统图标："><span class="nav-number">3.0.7.</span> <span class="nav-text">7). SystemUI中PhoneStatusBar调用状态栏图标控制类来添加系统图标：</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#8-SystemUI中StatusBarIconController添加系统图标："><span class="nav-number">3.0.8.</span> <span class="nav-text">8). SystemUI中StatusBarIconController添加系统图标：</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#4-总结"><span class="nav-number">4.</span> <span class="nav-text">4.总结</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Evan-Lam</span>
+
+</div>
+
+
+
+
+
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/canvas-nest/canvas-nest.min.js"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.4"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+  
+  
+  
+  <link rel="stylesheet" href="/lib/algolia-instant-search/instantsearch.min.css">
+
+  
+  
+  <script src="/lib/algolia-instant-search/instantsearch.min.js"></script>
+  
+
+  <script src="/js/src/algolia-search.js?v=5.1.4"></script>
+
+
+
+  
+
+  
+  <script src="https://cdn1.lncld.net/static/js/av-core-mini-0.6.4.js"></script>
+  <script>AV.initialize("JtQ9B4eFwaAAGlGhqHhNeIL3-gzGzoHsz", "IGEWd52BgUrX4IauS8tjzNTL");</script>
+  <script>
+    function showTime(Counter) {
+      var query = new AV.Query(Counter);
+      var entries = [];
+      var $visitors = $(".leancloud_visitors");
+
+      $visitors.each(function () {
+        entries.push( $(this).attr("id").trim() );
+      });
+
+      query.containedIn('url', entries);
+      query.find()
+        .done(function (results) {
+          var COUNT_CONTAINER_REF = '.leancloud-visitors-count';
+
+          if (results.length === 0) {
+            $visitors.find(COUNT_CONTAINER_REF).text(0);
+            return;
+          }
+
+          for (var i = 0; i < results.length; i++) {
+            var item = results[i];
+            var url = item.get('url');
+            var time = item.get('time');
+            var element = document.getElementById(url);
+
+            $(element).find(COUNT_CONTAINER_REF).text(time);
+          }
+          for(var i = 0; i < entries.length; i++) {
+            var url = entries[i];
+            var element = document.getElementById(url);
+            var countSpan = $(element).find(COUNT_CONTAINER_REF);
+            if( countSpan.text() == '') {
+              countSpan.text(0);
+            }
+          }
+        })
+        .fail(function (object, error) {
+          console.log("Error: " + error.code + " " + error.message);
+        });
+    }
+
+    function addCount(Counter) {
+      var $visitors = $(".leancloud_visitors");
+      var url = $visitors.attr('id').trim();
+      var title = $visitors.attr('data-flag-title').trim();
+      var query = new AV.Query(Counter);
+
+      query.equalTo("url", url);
+      query.find({
+        success: function(results) {
+          if (results.length > 0) {
+            var counter = results[0];
+            counter.fetchWhenSave(true);
+            counter.increment("time");
+            counter.save(null, {
+              success: function(counter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(counter.get('time'));
+              },
+              error: function(counter, error) {
+                console.log('Failed to save Visitor num, with error message: ' + error.message);
+              }
+            });
+          } else {
+            var newcounter = new Counter();
+            /* Set ACL */
+            var acl = new AV.ACL();
+            acl.setPublicReadAccess(true);
+            acl.setPublicWriteAccess(true);
+            newcounter.setACL(acl);
+            /* End Set ACL */
+            newcounter.set("title", title);
+            newcounter.set("url", url);
+            newcounter.set("time", 1);
+            newcounter.save(null, {
+              success: function(newcounter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(newcounter.get('time'));
+              },
+              error: function(newcounter, error) {
+                console.log('Failed to create');
+              }
+            });
+          }
+        },
+        error: function(error) {
+          console.log('Error:' + error.code + " " + error.message);
+        }
+      });
+    }
+
+    $(function() {
+      var Counter = AV.Object.extend("Counter");
+      if ($('.leancloud_visitors').length == 1) {
+        addCount(Counter);
+      } else if ($('.post-title-link').length > 1) {
+        showTime(Counter);
+      }
+    });
+  </script>
+
+
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
